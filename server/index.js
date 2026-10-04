@@ -1,0 +1,14 @@
+require('dotenv').config();
+const express=require('express'),cookie=require('cookie-parser'),path=require('path');
+const app=express();
+app.disable('x-powered-by');
+app.use(express.json({limit:'100kb'}));app.use(cookie());
+app.use((q,r,n)=>{r.set({'X-Content-Type-Options':'nosniff','X-Frame-Options':'DENY'});n();});
+app.use('/api/infy',require('./routes/infy'));
+app.use('/api/auth',require('./routes/auth'));
+app.use('/api/admin',require('./routes/admin'));
+app.use('/api',require('./routes/shop'));
+app.use('/api',(q,r)=>r.status(404).json({error:'Not found'}));
+app.use(express.static(path.join(__dirname,'../public')));
+app.use((err,q,r,n)=>{console.error(err);r.status(500).json({error:'Something went wrong. Please try again.'});});
+app.listen(process.env.PORT||3000,()=>console.log('Voltix running → http://localhost:'+(process.env.PORT||3000)));
